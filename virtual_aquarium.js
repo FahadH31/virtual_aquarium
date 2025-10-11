@@ -27,7 +27,7 @@ function gameLoop() {
 }
 
 // Track mouse location
-canvas.addEventListener('mousemove', (event) =>{
+canvas.addEventListener('mousemove', (event) => {
     const rect = canvas.getBoundingClientRect();
     mouse_x = event.clientX - rect.left
     mouse_y = event.clientY - rect.top
@@ -117,6 +117,7 @@ function calculateFishDirection(fish) {
 
 // Function to apply fish movements
 function updateFishDirection(fish) {
+
     // Handle wall collisions (change direction if the fish gets too close to borders)
     if (fish.x < 100) {
         fish.x_directon = 1
@@ -128,21 +129,25 @@ function updateFishDirection(fish) {
         fish.y_direction = -1;
     }
 
-    // Handle mouse interactions
-    let mouse_distance = getDistance(mouse_x, mouse_y, fish.x, fish.y);
-    if(mouse_distance < 100){
-        // x-direction
-        if(mouse_x < fish.x){
-            fish.x_directon = 1
-        } else {
-            fish.x_directon = -1
+    // Only handle mouse interactions outside wall deadzone (to avoid bugs with fish movement)
+    if (fish.x > 150 && fish.x < (canvas.width - 150) && fish.y > 150 && fish.y < canvas.height - 150) {
+        // Handle mouse interactions
+        let mouse_distance = getDistance(mouse_x, mouse_y, fish.x, fish.y);
+        if (mouse_distance < 75) {
+            // x-direction
+            if (mouse_x < fish.x) {
+                fish.x_directon = 1
+            } else {
+                fish.x_directon = -1
+            }
+            // y-direction
+            if (mouse_y < fish.y) {
+                fish.y_direction = 1
+            } else {
+                fish.y_direction = -1
+            }
         }
-        // y-direction
-        if (mouse_y < fish.y){
-            fish.y_direction = 1
-        } else {
-            fish.y_direction = -1
-        }
+
     }
 
     fish.x += fish.x_directon * fish.speed // update positions with directions
@@ -151,7 +156,7 @@ function updateFishDirection(fish) {
 
 // Function to generate a given number of fish
 function generateFish(num) {
-    for(i; i < num; i++){
+    for (i; i < num; i++) {
         fish = new Fish(
             // call function to randomly select a color-combo
             // call function to randomly select a shape
