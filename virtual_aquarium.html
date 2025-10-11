@@ -7,56 +7,10 @@
 
 <body>
     <canvas id="canvas" width="300" height="300">
-        Animated Virtual Aquarium
+        Animated Virtual Aquarium.
     </canvas>
 
-    <script>
-        function draw() {
-            const canvas = document.getElementById("canvas");
-            const ctx = canvas.getContext("2d");
-
-            const triangleFishBody = new Path2D();
-            const triangleFishTail = new Path2D();
-            const triangleFishArc = new Path2D();
-            const triangleFishEye = new Path2D()
-            const triangleFishPupil = new Path2D()
-
-            // Triangle Fish Tail
-            triangleFishTail.moveTo(110, 150)
-            triangleFishTail.lineTo(80, 140)
-            triangleFishTail.lineTo(80, 170)
-            triangleFishTail.closePath();
-            ctx.fillStyle = "#f54f24";
-            ctx.fill(triangleFishTail)
-
-            // Triangle Fish Body
-            triangleFishBody.moveTo(100, 100);
-            triangleFishBody.lineTo(175, 150);
-            triangleFishBody.lineTo(100, 200);
-            triangleFishBody.closePath();
-            ctx.fillStyle = "#b8ce0b";
-            ctx.fill(triangleFishBody)
-
-            // Triangle Fish Arc
-            triangleFishArc.moveTo(135, 125)
-            ctx.lineWidth = "4"
-            triangleFishArc.quadraticCurveTo(120, 150, 135, 175);
-            ctx.strokeStyle = "#f54f24";
-            ctx.stroke(triangleFishArc);
-
-            // Triangle Fish Eye
-            triangleFishEye.moveTo(155, 150);
-            triangleFishEye.arc(150, 150, 5, 0, Math.PI * 2, true);
-            triangleFishPupil.arc(150, 150, 3, 0, Math.PI * 2, true);
-            ctx.fillStyle = "yellow"
-            ctx.fill(triangleFishEye)
-            ctx.fillStyle = "black"
-            ctx.fill(triangleFishPupil)
-
-        }
-
-        draw();
-    </script>
+    <script src="virtual_aquarium.js"></script>
 </body>
 
 </html>
