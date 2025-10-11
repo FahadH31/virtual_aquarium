@@ -117,6 +117,7 @@ function calculateFishDirection(fish) {
 
 // Function to apply fish movements
 function updateFishDirection(fish) {
+    let current_speed = fish.speed;
 
     // Handle wall collisions (change direction if the fish gets too close to borders)
     if (fish.x < 100) {
@@ -133,7 +134,8 @@ function updateFishDirection(fish) {
     if (fish.x > 150 && fish.x < (canvas.width - 150) && fish.y > 150 && fish.y < canvas.height - 150) {
         // Handle mouse interactions
         let mouse_distance = getDistance(mouse_x, mouse_y, fish.x, fish.y);
-        if (mouse_distance < 75) {
+        if (mouse_distance < 150) {
+            current_speed = fish.speed*2 // give a speed boost
             // x-direction
             if (mouse_x < fish.x) {
                 fish.x_directon = 1
@@ -150,8 +152,8 @@ function updateFishDirection(fish) {
 
     }
 
-    fish.x += fish.x_directon * fish.speed // update positions with directions
-    fish.y += fish.y_direction * fish.speed
+    fish.x += fish.x_directon * current_speed // update positions with directions
+    fish.y += fish.y_direction * current_speed
 }
 
 // Function to generate a given number of fish
