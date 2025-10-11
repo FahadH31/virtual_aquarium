@@ -6,9 +6,15 @@ let fish = {
     y: 50,
     x_directon: 1,
     y_direction: 1,
-    speed: 1,
+    speed: generateSpeed(),
     frameCounter: 0
 }
+
+// Array to store all fish
+let allFish = [];
+// Mouse location variables
+let mouse_x = -1000;
+let mouse_y = -1000;
 
 function gameLoop() {
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -20,6 +26,21 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
+// Track mouse location
+canvas.addEventListener('mousemove', (event) =>{
+    const rect = canvas.getBoundingClientRect();
+    mouse_x = event.clientX - rect.left
+    mouse_y = event.clientY - rect.top
+})
+
+// Function to get distance between mouse/fish/food
+function getDistance(x1, y1, x2, y2) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+// Function to draw triangle fish on the canvas
 function drawTriangleFish(x, y, x_directon) {
     const body = new Path2D();
     const tail = new Path2D();
@@ -37,7 +58,7 @@ function drawTriangleFish(x, y, x_directon) {
     }
 
     // Triangle Tail
-    tail.moveTo(x + 10, y + 40)
+    tail.moveTo(x + 30, y + 40)
     tail.lineTo(x - 20, y + 40)
     tail.lineTo(x - 20, y + 70)
     tail.closePath();
@@ -71,6 +92,7 @@ function drawTriangleFish(x, y, x_directon) {
     context.restore();
 }
 
+// Function to calculate fish movements
 function calculateFishDirection(fish) {
     fish.frameCounter++;
 
@@ -93,8 +115,9 @@ function calculateFishDirection(fish) {
     }
 }
 
+// Function to apply fish movements
 function updateFishDirection(fish) {
-    // Handle wall collisions (change direction if the fish gets too close to the borders)
+    // Handle wall collisions (change direction if the fish gets too close to borders)
     if (fish.x < 100) {
         fish.x_directon = 1
     } else if (fish.y < 100) {
@@ -105,32 +128,49 @@ function updateFishDirection(fish) {
         fish.y_direction = -1;
     }
 
+    // Handle mouse interactions
+    let mouse_distance = getDistance(mouse_x, mouse_y, fish.x, fish.y);
+    if(mouse_distance < 100){
+        // x-direction
+        if(mouse_x < fish.x){
+            fish.x_directon = 1
+        } else {
+            fish.x_directon = -1
+        }
+        // y-direction
+        if (mouse_y < fish.y){
+            fish.y_direction = 1
+        } else {
+            fish.y_direction = -1
+        }
+    }
+
     fish.x += fish.x_directon * fish.speed // update positions with directions
     fish.y += fish.y_direction * fish.speed
 }
 
+// Function to generate a given number of fish
+function generateFish(num) {
+    for(i; i < num; i++){
+        fish = new Fish(
+            // call function to randomly select a color-combo
+            // call function to randomly select a shape
+            // call function to randomly create a size (within bounds)
+            speed = generateSpeed()
+        )
+        allFish.push(fish)   // add fish to array
+    }
+}
+
+// Function to randomly generate a movement speed
 function generateSpeed() {
-    return (Math.random() * 2)
+    return (Math.random() + 1)
 }
 
 function generateColor() { }
 function generateShape() { }
 function generateSize() { } // make it rarer on both extremes (large and small)
 
-// Function to create a number of fish
-function generateFish(num) {
-    // for num
-    // fish = new Fish(
-    // call function to randomly select a color-combo
-    // call function to randomly select a shape
-    // call function to randomly create a size (within bounds)
-    // call position function that handles movement
-    // cal speed function to randomly create a speed
-    // )
-    // add fish to array storing all fish
-}
-
-// Fish Object
 function Fish(x_pos, y_pos, direction_facing, speed, shape, size, colors) {
     this.x_pos = x_pos,
         this.y_pos = y_pos,
@@ -142,23 +182,3 @@ function Fish(x_pos, y_pos, direction_facing, speed, shape, size, colors) {
 }
 
 gameLoop();
-
-
-// Fish Object:
-// const fish = {shape: triangle/square/oval, color-pattern: red-blue/orange-green/...}
-// also have properties for x-pos, y-pos, speed, direction-facing.
-// speed can be random per fish within a certain range.
-// direction facing depends on it's current movement.
-// if x-pos increasing, it's facing right. if decreasing, facing left.
-
-// How to store multiple fish?
-// a simple array storing multiple fish objects
-
-// Animation loop structure?
-// draw method can be placed inside an infinite while loop
-// 1. clear canvas (to delete the old frame)
-// 2. update details (
-//      function to calculate new positions (this will be with randomness),
-//      function to calculate if collision (based on comparing fish x and y pos with fixed x and y pos)
-// 3. draw on the canvas
-// 4. wait for new frame (could do 60fps)
