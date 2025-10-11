@@ -1,9 +1,38 @@
-<!DOCTYPE html>
-<html>
-    <head>
+<!DOCTYPE HTML>
 
-    </head>
-    <body>
-        
-    </body>
+<head>
+    <title>Virtual Aquarium</title>
+    <link rel="stylesheet" href="virtual_aquarium.css">
+</head>
+
+<body>
+    <canvas id="canvas" width="300" height="300">
+    </canvas>
+
+    <script>
+        function draw() {
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+
+            const triangleFish = new Path2D();
+            // Arc
+            triangleFish.moveTo(140, 125)
+            triangleFish.quadraticCurveTo(120, 150, 140, 175);
+            // Circle for Eye
+            triangleFish.moveTo(155, 150);
+            triangleFish.arc(150, 150, 5, 0, Math.PI * 2, true);
+            // Triangle for Body
+            triangleFish.moveTo(100, 100);
+            triangleFish.lineTo(175, 150);
+            triangleFish.lineTo(100, 200);
+            triangleFish.closePath();
+
+            // Draw triangle fish
+            ctx.stroke(triangleFish)
+        }
+
+        draw();
+    </script>
+</body>
+
 </html>
