@@ -301,7 +301,7 @@ function generateColors() {
         secondary_color = "#669BBCFF"
         eye_color = "#B8EFFFCC"
     } else if (num >= 0.60 && num < 0.80) {
-        primary_color = "#0d00ffcc"
+        primary_color = "#3429ffff"
         secondary_color = "#9D4EDDFF"
         eye_color = "#FFD6FAFF"
     } else if (num >= 0.80 && num < 0.99) {
@@ -318,11 +318,7 @@ function generateColors() {
     return { primary_color, secondary_color, eye_color }
 }
 
-
-
-
 function generateShape() { }
-function generateSize() { }
 
 function Fish(x, y, x_directon, y_direction, facing_left, speed, primary_color, secondary_color, eye_color, frameCounter) {
     this.x = x;

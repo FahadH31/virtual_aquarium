@@ -7,7 +7,8 @@ body{
 }
 
 #canvas {
-    background-color: #0148ff;
+    background-image: url("background_img.jpg");
+    background-size: cover;
     width: 90vw; 
     max-width: 1200px;
     height: auto;
