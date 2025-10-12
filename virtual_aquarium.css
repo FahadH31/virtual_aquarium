@@ -7,6 +7,8 @@ body{
 }
 
 #canvas {
-    image-rendering: pixelated;
-    background-color: blue;
+    background-color: #0148ff;
+    width: 90vw; 
+    max-width: 1200px;
+    height: auto;
 }

@@ -31,6 +31,13 @@ function gameLoop() {
     requestAnimationFrame(gameLoop); // loop every frame
 }
 
+// To match canvas internal size with css size
+function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+}
+
 // Track mouse location
 canvas.addEventListener('mousemove', (event) => {
     const rect = canvas.getBoundingClientRect();
@@ -92,7 +99,7 @@ function drawFood(food_particle) {
 
 function moveFood(food_particle) {
     food_particle.y += 0.5  // gravity effect
-    if(food_particle.y < 0){ // delete food that goes off screen
+    if (food_particle.y < 0) { // delete food that goes off screen
         let i = allFoodParticles.indexOf(food_particle)
         allFoodParticles.splice(i, 1)
     }
@@ -212,7 +219,8 @@ function moveFish(fish) {
         let mouse_distance = getDistance(mouse_x, mouse_y, fish.x, fish.y);
 
         // Handle mouse interactions
-        if (mouse_distance < 150) {
+        if (mouse_distance < 200) {
+            shouldChasefood = false; // prevent food chasing when mouse is nearby to avoid conflict
             current_speed = fish.speed * 2 // give a speed boost
             // x-direction
             if (mouse_x < fish.x) {
@@ -270,7 +278,7 @@ function generateFish(num) {
 
 // Function to randomly generate a movement speed
 function generateSpeed() {
-    return (Math.random() + 1)
+    return (Math.random() + 0.5)
 }
 function generateColor() { }
 function generateShape() { }
@@ -297,3 +305,6 @@ function Food(x, y) {
 }
 
 gameLoop();
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
