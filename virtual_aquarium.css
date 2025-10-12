@@ -9,7 +9,7 @@ body{
 #canvas {
     background-image: url("background_img.jpg");
     background-size: cover;
-    width: 90vw; 
-    max-width: 1200px;
+    width: 100vw; 
+    max-width: 1500px;
     height: auto;
 }
