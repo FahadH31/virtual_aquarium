@@ -3,7 +3,6 @@ body{
 }
 
 #canvas {
-    border: 1px solid black;
     image-rendering: pixelated;
     background-color: blue;
 }

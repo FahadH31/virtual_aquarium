@@ -1,27 +1,30 @@
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
 
-let fish = {
-    x: 50,
-    y: 50,
-    x_directon: 1,
-    y_direction: 1,
-    speed: generateSpeed(),
-    frameCounter: 0
-}
-
-// Array to store all fish
+// Arrays
 let allFish = [];
+let allFoodParticles = [];
+
 // Mouse location variables
 let mouse_x = -1000;
 let mouse_y = -1000;
 
+// Generate a number of fish
+generateFish(5);
+
 function gameLoop() {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    calculateFishDirection(fish);
-    updateFishDirection(fish);
-    drawTriangleFish(fish.x, fish.y, fish.x_directon);
+    for (let i = 0; i < allFish.length; i++) {
+        let fish = allFish[i];
+        calculateFishDirection(fish);
+        updateFishDirection(fish);
+        drawTriangleFish(fish.x, fish.y, fish.x_directon);
+    }
+
+    for (let i = 0; i < allFoodParticles.length; i++) {
+        drawFood(allFoodParticles[i])
+    }
 
     requestAnimationFrame(gameLoop);
 }
@@ -31,6 +34,16 @@ canvas.addEventListener('mousemove', (event) => {
     const rect = canvas.getBoundingClientRect();
     mouse_x = event.clientX - rect.left
     mouse_y = event.clientY - rect.top
+})
+
+// Handle food creation on mouse click
+canvas.addEventListener('click', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    mouse_x = event.clientX - rect.left
+    mouse_y = event.clientY - rect.top
+    allFoodParticles.push(new Food(mouse_x, mouse_y)) // store food particle to array with coordinates it should be created at
+    console.log("Food added at:", mouse_x, mouse_y);
+    console.log("Total food:", allFoodParticles.length);
 })
 
 // Function to get distance between mouse/fish/food
@@ -92,11 +105,20 @@ function drawTriangleFish(x, y, x_directon) {
     context.restore();
 }
 
+function drawFood(food_particle) {
+    const food_drawing = new Path2D();
+    food_drawing.arc(food_particle.x_pos, food_particle.y_pos, 5, 0, Math.PI * 2, true)
+    context.fillStyle = "brown"
+    context.fill(food_drawing);
+}
+
 // Function to calculate fish movements
 function calculateFishDirection(fish) {
     fish.frameCounter++;
+    let numFrames = Math.floor(Math.random() * 300) + 200
+    console.log(numFrames)
 
-    if (fish.frameCounter >= 240) { // randomly update direction every 240 frames
+    if (fish.frameCounter >= numFrames) { // randomly update direction after a random number of frames (avoid fish movement syncing)
         const random = Math.random()
         if (random <= 0.25) {
             fish.x_directon = 1
@@ -135,7 +157,7 @@ function updateFishDirection(fish) {
         // Handle mouse interactions
         let mouse_distance = getDistance(mouse_x, mouse_y, fish.x, fish.y);
         if (mouse_distance < 150) {
-            current_speed = fish.speed*2 // give a speed boost
+            current_speed = fish.speed * 2 // give a speed boost
             // x-direction
             if (mouse_x < fish.x) {
                 fish.x_directon = 1
@@ -158,12 +180,17 @@ function updateFishDirection(fish) {
 
 // Function to generate a given number of fish
 function generateFish(num) {
-    for (i; i < num; i++) {
-        fish = new Fish(
+    for (let i = 0; i < num; i++) {
+        let fish = new Fish(
+            500,
+            500,
+            1,
+            1,
+            speed = generateSpeed(),
             // call function to randomly select a color-combo
             // call function to randomly select a shape
             // call function to randomly create a size (within bounds)
-            speed = generateSpeed()
+            0
         )
         allFish.push(fish)   // add fish to array
     }
@@ -173,19 +200,25 @@ function generateFish(num) {
 function generateSpeed() {
     return (Math.random() + 1)
 }
-
 function generateColor() { }
 function generateShape() { }
 function generateSize() { } // make it rarer on both extremes (large and small)
 
-function Fish(x_pos, y_pos, direction_facing, speed, shape, size, colors) {
+function Fish(x, y, x_directon, y_direction, speed, frameCounter) {
+    this.x = x;
+    this.y = y;
+    this.x_directon = x_directon;
+    this.y_direction = y_direction;
+    this.speed = speed;
+    // this.size = size,
+    // this.shape = shape,
+    // this.colors = colors
+    this.frameCounter = frameCounter;
+}
+
+function Food(x_pos, y_pos) {
     this.x_pos = x_pos,
-        this.y_pos = y_pos,
-        this.direction_facing = direction_facing,
-        this.speed = speed,
-        this.size = size,
-        this.shape = shape,
-        this.colors = colors
+        this.y_pos = y_pos
 }
 
 gameLoop();
