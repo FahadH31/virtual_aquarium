@@ -20,7 +20,8 @@ function gameLoop() {
         let fish = allFish[i];
         calculateRandomMovement(fish);
         moveFish(fish);
-        drawTriangleFish(fish.x, fish.y, fish.facing_left);
+        drawTriangleFish(fish.x, fish.y, fish.facing_left,
+            fish.primary_color, fish.secondary_color, fish.eye_color);
     }
 
     for (let i = 0; i < allFoodParticles.length; i++) {
@@ -106,7 +107,7 @@ function moveFood(food_particle) {
 }
 
 // Function to draw triangle fish on the canvas
-function drawTriangleFish(x, y, facing_left) {
+function drawTriangleFish(x, y, facing_left, primary_color, secondary_color, eye_color) {
     const body = new Path2D();
     const tail = new Path2D();
     const stripe = new Path2D();
@@ -127,7 +128,7 @@ function drawTriangleFish(x, y, facing_left) {
     tail.lineTo(x - 20, y + 40)
     tail.lineTo(x - 20, y + 70)
     tail.closePath();
-    context.fillStyle = "#f54f24";
+    context.fillStyle = secondary_color;
     context.fill(tail)
 
     // Triangle Body
@@ -135,14 +136,14 @@ function drawTriangleFish(x, y, facing_left) {
     body.lineTo(x + 75, y + 50);
     body.lineTo(x, y + 100);
     body.closePath();
-    context.fillStyle = "#b8ce0b";
+    context.fillStyle = primary_color;
     context.fill(body)
 
     // Stripe
     stripe.moveTo(x + 35, y + 25)
     context.lineWidth = "4"
     stripe.quadraticCurveTo(x + 20, y + 50, x + 35, y + 75);
-    context.strokeStyle = "#f54f24";
+    context.strokeStyle = secondary_color;
     context.stroke(stripe);
 
     // Eye/Pupil
@@ -161,7 +162,7 @@ function drawTriangleFish(x, y, facing_left) {
 function calculateRandomMovement(fish) {
     fish.frameCounter++;
 
-    if (fish.frameCounter >= fish.nextDirectionChange) { // randomly update direction
+    if (fish.frameCounter >= fish.next_direction_change) { // randomly update direction
         const random = Math.random()
         if (random <= 0.25) {
             fish.x_directon = 1
@@ -260,6 +261,7 @@ function moveFish(fish) {
 // Function to generate a given number of fish
 function generateFish(num) {
     for (let i = 0; i < num; i++) {
+        let { primary_color, secondary_color, eye_color } = generateColors(); // generate colors
         let fish = new Fish(
             (Math.random() * 100) + 300, //random initial x position
             (Math.random() * 100) + 300, //random initial y position
@@ -267,9 +269,10 @@ function generateFish(num) {
             getRandomDirection(), // random initial y direction
             false,
             speed = generateSpeed(),
-            // call function to randomly select a color-combo
+            primary_color,
+            secondary_color,
+            eye_color,
             // call function to randomly select a shape
-            // call function to randomly create a size (within bounds)
             0
         )
         allFish.push(fish)   // add fish to array
@@ -280,11 +283,48 @@ function generateFish(num) {
 function generateSpeed() {
     return (Math.random() + 0.5)
 }
-function generateColor() { }
+
+// Function to randomly generate a random color combo
+function generateColors() {
+    num = Math.random()
+
+    if (num < 0.20) {
+        primary_color = "#00C2CBFF"
+        secondary_color = "#FFD93DFF"
+        eye_color = "#FFFFFFCC"
+    } else if (num >= 0.20 && num < 0.40) {
+        primary_color = "#D7263DFF"
+        secondary_color = "#FF9E00FF"
+        eye_color = "#FFF0E0FF"
+    } else if (num >= 0.40 && num < 0.60) {
+        primary_color = "#003049FF"
+        secondary_color = "#669BBCFF"
+        eye_color = "#B8EFFFCC"
+    } else if (num >= 0.60 && num < 0.80) {
+        primary_color = "#0d00ffcc"
+        secondary_color = "#9D4EDDFF"
+        eye_color = "#FFD6FAFF"
+    } else if (num >= 0.80 && num < 0.99) {
+        primary_color = "#FF7F11FF"
+        secondary_color = "#FFFFFFEE"
+        eye_color = "#FFEEDDFF"
+    } else {
+        // rare golden fish
+        primary_color = "#FFD700FF"
+        secondary_color = "#FFF4B0FF"
+        eye_color = "#FFFFFFEE"
+    }
+
+    return { primary_color, secondary_color, eye_color }
+}
+
+
+
+
 function generateShape() { }
 function generateSize() { }
 
-function Fish(x, y, x_directon, y_direction, facing_left, speed, frameCounter) {
+function Fish(x, y, x_directon, y_direction, facing_left, speed, primary_color, secondary_color, eye_color, frameCounter) {
     this.x = x;
     this.y = y;
     this.x_directon = x_directon;
@@ -292,10 +332,11 @@ function Fish(x, y, x_directon, y_direction, facing_left, speed, frameCounter) {
     this.facing_left = facing_left;
     this.last_flip_x = x;  // x position at last flip
     this.speed = speed;
-    // this.size = size,
     // this.shape = shape,
-    // this.colors = colors
-    this.nextDirectionChange = Math.floor(Math.random() * 300) + 200; // random amount of time until next direction change (avoid all fish movement patterns syncing)
+    this.primary_color = primary_color;
+    this.secondary_color = secondary_color;
+    this.eye_color = eye_color;
+    this.next_direction_change = Math.floor(Math.random() * 300) + 200; // random amount of time until next direction change (avoid all fish movement patterns syncing)
     this.frameCounter = frameCounter;
 }
 
