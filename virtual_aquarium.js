@@ -10,7 +10,7 @@ let mouse_x = -1000;
 let mouse_y = -1000;
 
 // Generate a number of fish
-generateFish(5);
+generateFish(15);
 
 function gameLoop() {
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -28,7 +28,7 @@ function gameLoop() {
         drawFood(allFoodParticles[i])
     }
 
-    requestAnimationFrame(gameLoop);    // loop every frame
+    requestAnimationFrame(gameLoop); // loop every frame
 }
 
 // Track mouse location
@@ -70,7 +70,6 @@ function getNearestFood(fish) {
     return { nearestFood, nearestFoodDistance };
 }
 
-
 // For initial fish spawn
 function getRandomDirection() {
     let num = Math.random()
@@ -93,8 +92,11 @@ function drawFood(food_particle) {
 
 function moveFood(food_particle) {
     food_particle.y += 0.5  // gravity effect
+    if(food_particle.y < 0){ // delete food that goes off screen
+        let i = allFoodParticles.indexOf(food_particle)
+        allFoodParticles.splice(i, 1)
+    }
 }
-
 
 // Function to draw triangle fish on the canvas
 function drawTriangleFish(x, y, facing_left) {
@@ -186,28 +188,28 @@ function moveFish(fish) {
         fish.y_direction = -1;
     }
 
+    // Handle food navigation
+    let { nearestFood, nearestFoodDistance } = getNearestFood(fish);
+    if (nearestFoodDistance < 20) { // remove food once fish is close enough (eaten)
+        let i = allFoodParticles.indexOf(nearestFood)
+        allFoodParticles.splice(i, 1)
+    } else if (nearestFoodDistance < 300) {
+        if (nearestFood.x < fish.x) {
+            fish.x_directon = -1
+        } else {
+            fish.x_directon = 1
+        }
+        // y-direction
+        if (nearestFood.y < fish.y) {
+            fish.y_direction = -1
+        } else {
+            fish.y_direction = 1
+        }
+    }
+
     // Only handle mouse interactions outside wall deadzone (to avoid bugs with fish movement)
     if (fish.x > 150 && fish.x < (canvas.width - 150) && fish.y > 150 && fish.y < canvas.height - 150) {
         let mouse_distance = getDistance(mouse_x, mouse_y, fish.x, fish.y);
-        let { nearestFood, nearestFoodDistance } = getNearestFood(fish);
-
-        // Handle food navigation
-        if (nearestFoodDistance < 20) { // remove food once fish is close enough (eaten)
-            let i = allFoodParticles.indexOf(nearestFood)
-            allFoodParticles.splice(i, 1)
-        } else if (nearestFoodDistance < 300) {
-            if (nearestFood.x < fish.x) {
-                fish.x_directon = -1
-            } else {
-                fish.x_directon = 1
-            }
-            // y-direction
-            if (nearestFood.y < fish.y) {
-                fish.y_direction = -1
-            } else {
-                fish.y_direction = 1
-            }
-        }
 
         // Handle mouse interactions
         if (mouse_distance < 150) {
@@ -230,6 +232,21 @@ function moveFish(fish) {
 
     fish.x += fish.x_directon * current_speed // update positions with directions
     fish.y += fish.y_direction * current_speed
+
+    // Calc distance since last horizontal flip
+    const distanceMovedSinceFlip = fish.x - fish.last_flip_x;
+
+    // If moved 20+ pixels to the right, face right
+    if (distanceMovedSinceFlip > 20) {
+        fish.facing_left = false;
+        fish.last_flip_x = fish.x;  // Reset tracking position
+    }
+
+    // If moved 20+ pixels to the left, face left
+    if (distanceMovedSinceFlip < -20) {
+        fish.facing_left = true;
+        fish.last_flip_x = fish.x;
+    }
 }
 
 // Function to generate a given number of fish
@@ -265,6 +282,7 @@ function Fish(x, y, x_directon, y_direction, facing_left, speed, frameCounter) {
     this.x_directon = x_directon;
     this.y_direction = y_direction;
     this.facing_left = facing_left;
+    this.last_flip_x = x;  // x position at last flip
     this.speed = speed;
     // this.size = size,
     // this.shape = shape,
