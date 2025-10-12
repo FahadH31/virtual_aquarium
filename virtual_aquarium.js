@@ -15,18 +15,20 @@ generateFish(5);
 function gameLoop() {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Loop through and draw all fish
     for (let i = 0; i < allFish.length; i++) {
         let fish = allFish[i];
         calculateFishDirection(fish);
-        updateFishDirection(fish);
+        moveFish(fish);
         drawTriangleFish(fish.x, fish.y, fish.x_directon);
     }
 
     for (let i = 0; i < allFoodParticles.length; i++) {
+        moveFood(allFoodParticles[i])
         drawFood(allFoodParticles[i])
     }
 
-    requestAnimationFrame(gameLoop);
+    requestAnimationFrame(gameLoop);    // loop every frame
 }
 
 // Track mouse location
@@ -42,8 +44,6 @@ canvas.addEventListener('click', (event) => {
     mouse_x = event.clientX - rect.left
     mouse_y = event.clientY - rect.top
     allFoodParticles.push(new Food(mouse_x, mouse_y)) // store food particle to array with coordinates it should be created at
-    console.log("Food added at:", mouse_x, mouse_y);
-    console.log("Total food:", allFoodParticles.length);
 })
 
 // Function to get distance between mouse/fish/food
@@ -52,6 +52,36 @@ function getDistance(x1, y1, x2, y2) {
     const dy = y2 - y1;
     return Math.sqrt(dx * dx + dy * dy);
 }
+
+// Function to find the nearest food to a fish
+function getNearestFood(fish) {
+    let nearestFood, nearestFoodDistance, currentFood, currentFoodDistance;
+    for (let i = 0; i < allFoodParticles.length; i++) {
+        currentFood = allFoodParticles[i];
+        currentFoodDistance = getDistance(fish.x, fish.y, currentFood.x, currentFood.y)
+        if (i == 0) {
+            nearestFood = currentFood
+            nearestFoodDistance = currentFoodDistance;
+        } else if (currentFoodDistance < nearestFoodDistance) { // update if a closer food is found
+            nearestFood = currentFood
+            nearestFoodDistance = currentFoodDistance
+        }
+    }
+    return { nearestFood, nearestFoodDistance };
+}
+
+// Functions to draw and move food
+function drawFood(food_particle) {
+    const food_drawing = new Path2D();
+    food_drawing.arc(food_particle.x, food_particle.y, 5, 0, Math.PI * 2, true);
+    context.fillStyle = "orange";
+    context.fill(food_drawing);
+}
+
+function moveFood(food_particle) {
+    food_particle.y += 0.5  // gravity effect
+}
+
 
 // Function to draw triangle fish on the canvas
 function drawTriangleFish(x, y, x_directon) {
@@ -105,20 +135,11 @@ function drawTriangleFish(x, y, x_directon) {
     context.restore();
 }
 
-function drawFood(food_particle) {
-    const food_drawing = new Path2D();
-    food_drawing.arc(food_particle.x_pos, food_particle.y_pos, 5, 0, Math.PI * 2, true)
-    context.fillStyle = "brown"
-    context.fill(food_drawing);
-}
-
 // Function to calculate fish movements
 function calculateFishDirection(fish) {
     fish.frameCounter++;
-    let numFrames = Math.floor(Math.random() * 300) + 200
-    console.log(numFrames)
 
-    if (fish.frameCounter >= numFrames) { // randomly update direction after a random number of frames (avoid fish movement syncing)
+    if (fish.frameCounter >= fish.nextDirectionChange) { // randomly update direction
         const random = Math.random()
         if (random <= 0.25) {
             fish.x_directon = 1
@@ -138,7 +159,7 @@ function calculateFishDirection(fish) {
 }
 
 // Function to apply fish movements
-function updateFishDirection(fish) {
+function moveFish(fish) {
     let current_speed = fish.speed;
 
     // Handle wall collisions (change direction if the fish gets too close to borders)
@@ -154,8 +175,28 @@ function updateFishDirection(fish) {
 
     // Only handle mouse interactions outside wall deadzone (to avoid bugs with fish movement)
     if (fish.x > 150 && fish.x < (canvas.width - 150) && fish.y > 150 && fish.y < canvas.height - 150) {
-        // Handle mouse interactions
         let mouse_distance = getDistance(mouse_x, mouse_y, fish.x, fish.y);
+        let { nearestFood, nearestFoodDistance } = getNearestFood(fish);
+
+        // Handle food navigation
+        if (nearestFoodDistance < 20){ // remove food once fish is close enough (eaten)
+            let i = allFoodParticles.indexOf(nearestFood)
+            allFoodParticles.splice(i, 1)
+        } else if (nearestFoodDistance < 300) {
+            if (nearestFood.x < fish.x) {
+                fish.x_directon = -1
+            } else {
+                fish.x_directon = 1
+            }
+            // y-direction
+            if (nearestFood.y < fish.y) {
+                fish.y_direction = -1
+            } else {
+                fish.y_direction = 1
+            }
+        } 
+
+        // Handle mouse interactions
         if (mouse_distance < 150) {
             current_speed = fish.speed * 2 // give a speed boost
             // x-direction
@@ -202,7 +243,7 @@ function generateSpeed() {
 }
 function generateColor() { }
 function generateShape() { }
-function generateSize() { } // make it rarer on both extremes (large and small)
+function generateSize() { }
 
 function Fish(x, y, x_directon, y_direction, speed, frameCounter) {
     this.x = x;
@@ -213,12 +254,13 @@ function Fish(x, y, x_directon, y_direction, speed, frameCounter) {
     // this.size = size,
     // this.shape = shape,
     // this.colors = colors
+    this.nextDirectionChange = Math.floor(Math.random() * 300) + 200; // random amount of time until next direction change (avoid all fish movement patterns syncing)
     this.frameCounter = frameCounter;
 }
 
-function Food(x_pos, y_pos) {
-    this.x_pos = x_pos,
-        this.y_pos = y_pos
+function Food(x, y) {
+    this.x = x,
+        this.y = y
 }
 
 gameLoop();
