@@ -18,9 +18,9 @@ function gameLoop() {
     // Loop through and draw all fish
     for (let i = 0; i < allFish.length; i++) {
         let fish = allFish[i];
-        calculateFishDirection(fish);
+        calculateRandomMovement(fish);
         moveFish(fish);
-        drawTriangleFish(fish.x, fish.y, fish.x_directon);
+        drawTriangleFish(fish.x, fish.y, fish.facing_left);
     }
 
     for (let i = 0; i < allFoodParticles.length; i++) {
@@ -70,6 +70,19 @@ function getNearestFood(fish) {
     return { nearestFood, nearestFoodDistance };
 }
 
+
+// For initial fish spawn
+function getRandomDirection() {
+    let num = Math.random()
+    let result;
+    if (num < 0.5) {
+        result = 1
+    } else {
+        result = -1
+    }
+    return result
+}
+
 // Functions to draw and move food
 function drawFood(food_particle) {
     const food_drawing = new Path2D();
@@ -84,7 +97,7 @@ function moveFood(food_particle) {
 
 
 // Function to draw triangle fish on the canvas
-function drawTriangleFish(x, y, x_directon) {
+function drawTriangleFish(x, y, facing_left) {
     const body = new Path2D();
     const tail = new Path2D();
     const stripe = new Path2D();
@@ -93,8 +106,8 @@ function drawTriangleFish(x, y, x_directon) {
 
     context.save();
 
-    // If moving left
-    if (x_directon == -1) {
+    // If fish set to facing left, flip it
+    if (facing_left) {
         context.translate(x, 0)
         context.scale(-1, 1);
         context.translate(-x, 0)
@@ -136,7 +149,7 @@ function drawTriangleFish(x, y, x_directon) {
 }
 
 // Function to calculate fish movements
-function calculateFishDirection(fish) {
+function calculateRandomMovement(fish) {
     fish.frameCounter++;
 
     if (fish.frameCounter >= fish.nextDirectionChange) { // randomly update direction
@@ -179,7 +192,7 @@ function moveFish(fish) {
         let { nearestFood, nearestFoodDistance } = getNearestFood(fish);
 
         // Handle food navigation
-        if (nearestFoodDistance < 20){ // remove food once fish is close enough (eaten)
+        if (nearestFoodDistance < 20) { // remove food once fish is close enough (eaten)
             let i = allFoodParticles.indexOf(nearestFood)
             allFoodParticles.splice(i, 1)
         } else if (nearestFoodDistance < 300) {
@@ -194,7 +207,7 @@ function moveFish(fish) {
             } else {
                 fish.y_direction = 1
             }
-        } 
+        }
 
         // Handle mouse interactions
         if (mouse_distance < 150) {
@@ -223,10 +236,11 @@ function moveFish(fish) {
 function generateFish(num) {
     for (let i = 0; i < num; i++) {
         let fish = new Fish(
-            500,
-            500,
-            1,
-            1,
+            (Math.random() * 100) + 300, //random initial x position
+            (Math.random() * 100) + 300, //random initial y position
+            getRandomDirection(), // random initial x direction
+            getRandomDirection(), // random initial y direction
+            false,
             speed = generateSpeed(),
             // call function to randomly select a color-combo
             // call function to randomly select a shape
@@ -245,11 +259,12 @@ function generateColor() { }
 function generateShape() { }
 function generateSize() { }
 
-function Fish(x, y, x_directon, y_direction, speed, frameCounter) {
+function Fish(x, y, x_directon, y_direction, facing_left, speed, frameCounter) {
     this.x = x;
     this.y = y;
     this.x_directon = x_directon;
     this.y_direction = y_direction;
+    this.facing_left = facing_left;
     this.speed = speed;
     // this.size = size,
     // this.shape = shape,
