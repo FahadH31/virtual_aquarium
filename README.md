@@ -2,26 +2,17 @@
 
 An interactive animated aquarium built with HTML Canvas and JavaScript.
 
----
+## Features
 
-## 🌊 Features
-
-- **15+ animated fish** that wander randomly while avoiding walls  
-- **Interactive feeding:** click anywhere to drop floating food particles  
-- **Predator behavior:** fish swim away from the mouse cursor  
-- **Randomized fish colors** for a diverse, natural look  
-- **Gravity-based food physics**: food sinks slowly toward the bottom  
-- **Directional animation**: fish flip to face the way they swim  
-- **Random generation** of fish speed, spawn position, and movement direction  
-- **Scalable system:** easily adjust the number of fish via an internal function  
-
----
+- **Animated fish:** Multiple animated fish wander randomly while avoiding walls  
+- **Interactive feeding:** Click anywhere to drop floating food particles that sink to the bottom with gravity  
+- **Predator behavior:** Fish swim away from the mouse cursor  
+- **System randomness:** Fish colors, speeds, spawn positions, and movement directions are all randomized   
+- **Scalable system:** Number of fish can be adjusted to any number via a function parameter  
 
 ## How to Run
 
-View it live here: [Virtual Aquarium on GitHub Pages](https://fahadh31.github.io/virtual_aquarium/)
-
----
+👉 [**Link to Live Webpage**](https://fahadh31.github.io/virtual_aquarium/)
 
 ## Controls
 
