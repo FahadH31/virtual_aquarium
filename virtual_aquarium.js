@@ -318,8 +318,6 @@ function generateColors() {
     return { primary_color, secondary_color, eye_color }
 }
 
-function generateShape() { }
-
 function Fish(x, y, x_directon, y_direction, facing_left, speed, primary_color, secondary_color, eye_color, frameCounter) {
     this.x = x;
     this.y = y;
@@ -328,7 +326,6 @@ function Fish(x, y, x_directon, y_direction, facing_left, speed, primary_color, 
     this.facing_left = facing_left;
     this.last_flip_x = x;  // x position at last flip
     this.speed = speed;
-    // this.shape = shape,
     this.primary_color = primary_color;
     this.secondary_color = secondary_color;
     this.eye_color = eye_color;
