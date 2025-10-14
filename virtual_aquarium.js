@@ -201,7 +201,7 @@ function moveFish(fish) {
     if (nearestFoodDistance < 20) { // remove food once fish is close enough (eaten)
         let i = allFoodParticles.indexOf(nearestFood)
         allFoodParticles.splice(i, 1)
-    } else if (nearestFoodDistance < 300) {
+    } else if (nearestFoodDistance < 250) { // get nearest food within 250px
         if (nearestFood.x < fish.x) {
             fish.x_directon = -1
         } else {
@@ -220,7 +220,7 @@ function moveFish(fish) {
         let mouse_distance = getDistance(mouse_x, mouse_y, fish.x, fish.y);
 
         // Handle mouse interactions
-        if (mouse_distance < 200) {
+        if (mouse_distance < 300) { // flee when mouse is less than 300px away (predator effet)
             shouldChasefood = false; // prevent food chasing when mouse is nearby to avoid conflict
             current_speed = fish.speed * 2 // give a speed boost
             // x-direction
