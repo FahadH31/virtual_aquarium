@@ -49,9 +49,9 @@ canvas.addEventListener('mousemove', (event) => {
 // Handle food creation on mouse click
 canvas.addEventListener('click', (event) => {
     const rect = canvas.getBoundingClientRect();
-    mouse_x = event.clientX - rect.left
-    mouse_y = event.clientY - rect.top
-    allFoodParticles.push(new Food(mouse_x, mouse_y)) // store food particle to array with coordinates it should be created at
+    const click_x = event.clientX - rect.left
+    const click_y = event.clientY - rect.top
+    allFoodParticles.push(new Food(click_x, click_y)) // store food particle to array with coordinates it should be created at
 })
 
 // Function to get distance between mouse/fish/food
@@ -188,31 +188,15 @@ function moveFish(fish) {
     // Handle wall collisions (change direction if the fish gets too close to borders)
     if (fish.x < 100) {
         fish.x_directon = 1
-    } else if (fish.y < 100) {
-        fish.y_direction = 1
-    } else if (fish.x > (canvas.width - 100)) {
-        fish.x_directon = -1
-    } else if (fish.y > (canvas.height - 100)) {
-        fish.y_direction = -1;
     }
-
-    // Handle food navigation
-    let { nearestFood, nearestFoodDistance } = getNearestFood(fish);
-    if (nearestFoodDistance < 20) { // remove food once fish is close enough (eaten)
-        let i = allFoodParticles.indexOf(nearestFood)
-        allFoodParticles.splice(i, 1)
-    } else if (nearestFoodDistance < 250) { // get nearest food within 250px
-        if (nearestFood.x < fish.x) {
-            fish.x_directon = -1
-        } else {
-            fish.x_directon = 1
-        }
-        // y-direction
-        if (nearestFood.y < fish.y) {
-            fish.y_direction = -1
-        } else {
-            fish.y_direction = 1
-        }
+    if (fish.y < 100) {
+        fish.y_direction = 1
+    }
+    if (fish.x > (canvas.width - 100)) {
+        fish.x_directon = -1
+    }
+    if (fish.y > (canvas.height - 100)) {
+        fish.y_direction = -1;
     }
 
     // Only handle mouse interactions outside wall deadzone (to avoid bugs with fish movement)
@@ -220,23 +204,56 @@ function moveFish(fish) {
         let mouse_distance = getDistance(mouse_x, mouse_y, fish.x, fish.y);
 
         // Handle mouse interactions
-        if (mouse_distance < 300) { // flee when mouse is less than 300px away (predator effet)
-            shouldChasefood = false; // prevent food chasing when mouse is nearby to avoid conflict
+        if (mouse_distance < 150) { // flee when mouse is less than 150px away (predator effect)
             current_speed = fish.speed * 2 // give a speed boost
+            // Set flee timer for at least 2 seconds (120 frames at 60fps)
+            fish.fleeTimer = 60;
             // x-direction
             if (mouse_x < fish.x) {
                 fish.x_directon = 1
+                fish.fleeDirectionX = 1;
             } else {
                 fish.x_directon = -1
+                fish.fleeDirectionX = -1;
             }
             // y-direction
             if (mouse_y < fish.y) {
                 fish.y_direction = 1
+                fish.fleeDirectionY = 1;
             } else {
                 fish.y_direction = -1
+                fish.fleeDirectionY = -1;
             }
         }
+    }
 
+    // Continue fleeing in same direction if flee timer is active
+    if (fish.fleeTimer > 0) {
+        fish.fleeTimer--;
+        current_speed = fish.speed * 2;
+        fish.x_directon = fish.fleeDirectionX;
+        fish.y_direction = fish.fleeDirectionY;
+    } else {
+        // Handle food navigation only when not fleeing
+        if (allFoodParticles.length > 0) {
+            let { nearestFood, nearestFoodDistance } = getNearestFood(fish);
+            if (nearestFoodDistance < 20) { // remove food once fish is close enough (eaten)
+                let i = allFoodParticles.indexOf(nearestFood)
+                allFoodParticles.splice(i, 1)
+            } else if (nearestFoodDistance < 250) { // get nearest food within 250px
+                if (nearestFood.x < fish.x) {
+                    fish.x_directon = -1
+                } else {
+                    fish.x_directon = 1
+                }
+                // y-direction
+                if (nearestFood.y < fish.y) {
+                    fish.y_direction = -1
+                } else {
+                    fish.y_direction = 1
+                }
+            }
+        }
     }
 
     fish.x += fish.x_directon * current_speed // update positions with directions
@@ -331,6 +348,9 @@ function Fish(x, y, x_directon, y_direction, facing_left, speed, primary_color, 
     this.eye_color = eye_color;
     this.next_direction_change = Math.floor(Math.random() * 300) + 200; // random amount of time until next direction change (avoid all fish movement patterns syncing)
     this.frameCounter = frameCounter;
+    this.fleeTimer = 0; // timer for flee behavior
+    this.fleeDirectionX = 0; // locked flee direction X
+    this.fleeDirectionY = 0; // locked flee direction Y
 }
 
 function Food(x, y) {
