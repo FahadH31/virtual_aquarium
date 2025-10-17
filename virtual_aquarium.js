@@ -2,13 +2,15 @@ const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
 
 // Arrays
-let allFish = [];
-let allFoodParticles = [];
+let all_fish = [];
+let all_food_particles = [];
 
 // Mouse location variables
 let mouse_x = -1000;
 let mouse_y = -1000;
 
+// Scale factor
+let scale_factor = 1;
 
 // Generate with 15 fish initially
 generateFish(15);
@@ -16,29 +18,31 @@ generateFish(15);
 // Update number of fish with user-inputted amount
 const fish_input = document.getElementById('fishCount');
 fish_input.addEventListener('input', function () {
-    allFish = [];
-    const numFish = this.value;
-    generateFish(numFish);
+    all_fish = [];
+    const num_fish = this.value;
+    generateFish(num_fish);
 });
 
+
+// Infinite loop that runs the game itself
 function gameLoop() {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     // Loop through and draw all fish
-    for (let i = 0; i < allFish.length; i++) {
-        let fish = allFish[i];
+    for (let i = 0; i < all_fish.length; i++) {
+        let fish = all_fish[i];
         calculateRandomMovement(fish);
         moveFish(fish);
         drawTriangleFish(fish.x, fish.y, fish.facing_left,
             fish.primary_color, fish.secondary_color, fish.eye_color);
     }
 
-    for (let i = 0; i < allFoodParticles.length; i++) {
-        let should_remove = moveFood(allFoodParticles[i]);
+    for (let i = 0; i < all_food_particles.length; i++) {
+        let should_remove = moveFood(all_food_particles[i]);
         if (should_remove) {
-            allFoodParticles.splice(i, 1);
+            all_food_particles.splice(i, 1);
         } else {
-            drawFood(allFoodParticles[i]);
+            drawFood(all_food_particles[i]);
         }
     }
 
@@ -50,6 +54,16 @@ function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
+    updateScale();
+}
+
+// Calculate the scale factor for fish based on canvas size
+function updateScale() {
+    const reference_width = 1500;
+    const reference_height = 1000;
+    const width_scale = canvas.width / reference_width;
+    const height_scale = canvas.height / reference_height;
+    scale_factor = Math.min(width_scale, height_scale, 1); // cap at 1 to avoid too large fish
 }
 
 // Track mouse location
@@ -64,7 +78,7 @@ canvas.addEventListener('click', (event) => {
     const rect = canvas.getBoundingClientRect();
     const click_x = event.clientX - rect.left
     const click_y = event.clientY - rect.top
-    allFoodParticles.push(new Food(click_x, click_y)) // store food particle to array with coordinates it should be created at
+    all_food_particles.push(new Food(click_x, click_y)) // store food particle to array with coordinates it should be created at
 })
 
 // Function to get distance between mouse/fish/food
@@ -77,8 +91,8 @@ function getDistance(x1, y1, x2, y2) {
 // Function to find the nearest food to a fish
 function getNearestFood(fish) {
     let nearestFood, nearestFoodDistance, currentFood, currentFoodDistance;
-    for (let i = 0; i < allFoodParticles.length; i++) {
-        currentFood = allFoodParticles[i];
+    for (let i = 0; i < all_food_particles.length; i++) {
+        currentFood = all_food_particles[i];
         currentFoodDistance = getDistance(fish.x, fish.y, currentFood.x, currentFood.y)
         if (i == 0) {
             nearestFood = currentFood
@@ -127,6 +141,9 @@ function drawTriangleFish(x, y, facing_left, primary_color, secondary_color, eye
     const eye = new Path2D()
     const pupil = new Path2D()
 
+    // Scale for all dimensions according to canvas size
+    const s = scale_factor;
+
     context.save();
 
     // If fish set to facing left, flip it
@@ -137,32 +154,32 @@ function drawTriangleFish(x, y, facing_left, primary_color, secondary_color, eye
     }
 
     // Triangle Tail
-    tail.moveTo(x + 30, y + 40)
-    tail.lineTo(x - 20, y + 40)
-    tail.lineTo(x - 20, y + 70)
+    tail.moveTo(x + 30 * s, y + 40 * s)
+    tail.lineTo(x - 20 * s, y + 40 * s)
+    tail.lineTo(x - 20 * s, y + 70 * s)
     tail.closePath();
     context.fillStyle = secondary_color;
     context.fill(tail)
 
     // Triangle Body
     body.moveTo(x, y);
-    body.lineTo(x + 75, y + 50);
-    body.lineTo(x, y + 100);
+    body.lineTo(x + 75 * s, y + 50 * s);
+    body.lineTo(x, y + 100 * s);
     body.closePath();
     context.fillStyle = primary_color;
     context.fill(body)
 
     // Stripe
-    stripe.moveTo(x + 35, y + 25)
-    context.lineWidth = "4"
-    stripe.quadraticCurveTo(x + 20, y + 50, x + 35, y + 75);
+    stripe.moveTo(x + 35 * s, y + 25 * s)
+    context.lineWidth = 4 * s;
+    stripe.quadraticCurveTo(x + 20 * s, y + 50 * s, x + 35 * s, y + 75 * s);
     context.strokeStyle = secondary_color;
     context.stroke(stripe);
 
     // Eye/Pupil
-    eye.moveTo(x + 55, y + 50);
-    eye.arc(x + 50, y + 50, 5, 0, Math.PI * 2, true);
-    pupil.arc(x + 50, y + 50, 3, 0, Math.PI * 2, true);
+    eye.moveTo(x + 55 * s, y + 50 * s);
+    eye.arc(x + 50 * s, y + 50 * s, 5 * s, 0, Math.PI * 2, true);
+    pupil.arc(x + 50 * s, y + 50 * s, 3 * s, 0, Math.PI * 2, true);
     context.fillStyle = "yellow"
     context.fill(eye)
     context.fillStyle = "black"
@@ -234,11 +251,11 @@ function moveFish(fish) {
         fish.y_direction = fish.fleeDirectionY;
     } else {
         // Handle food navigation only when not fleeing
-        if (allFoodParticles.length > 0) {
+        if (all_food_particles.length > 0) {
             let { nearestFood, nearestFoodDistance } = getNearestFood(fish);
             if (nearestFoodDistance < 20) { // remove food once fish is close enough (eaten)
-                let i = allFoodParticles.indexOf(nearestFood)
-                allFoodParticles.splice(i, 1)
+                let i = all_food_particles.indexOf(nearestFood)
+                all_food_particles.splice(i, 1)
             } else if (nearestFoodDistance < 250) { // get nearest food within 250px
                 if (nearestFood.x < fish.x) {
                     fish.x_directon = -1
@@ -305,7 +322,7 @@ function generateFish(num) {
             eye_color,
             0
         )
-        allFish.push(fish)   // add fish to array
+        all_fish.push(fish)   // add fish to array
     }
 }
 

@@ -8,7 +8,7 @@ An interactive animated aquarium built with HTML Canvas and JavaScript.
 - **Interactive feeding:** Click anywhere to drop floating food particles that sink to the bottom with gravity  
 - **Predator behavior:** Fish swim away from the mouse cursor  
 - **System randomness:** Fish colors, speeds, spawn positions, and movement directions are all randomized   
-- **Scalable system:** Number of fish can be adjusted to any number via a function parameter  
+- **Scalable system:** Number of fish can be adjusted to any number via the input field  
 
 ## How to Run
 
