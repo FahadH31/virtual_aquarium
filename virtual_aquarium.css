@@ -1,15 +1,82 @@
-body{
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
     margin: 0;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     height: 100vh;
-    background-color: black;
+    background-color: white;
 }
 
 #canvas {
     background-image: url("background_img.jpg");
     background-size: cover;
-    width: 100vw; 
-    max-width: 1500px;
+    margin-left: auto;
+    margin-right: auto;
+    max-height: 80vh;
+    max-width: 85vw;
     height: auto;
+}
+
+h2 {
+    margin-left: auto;
+    margin-right: auto;
+    background: linear-gradient(90deg, rgb(20, 71, 255) 0%, rgb(51, 51, 255) 35%, rgba(0, 212, 255, 1) 100%);
+    background-clip: text;
+    color: transparent;
+    font-size: 30pt;
+    font-weight: 700;
+    font-family: "Roboto", sans-serif;
+    margin-top: auto;
+    margin-bottom: 20px;
+}
+
+.input-box {
+    background: linear-gradient(135deg, rgba(20, 71, 255, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+    border: 2px solid transparent;
+    background-image:
+        linear-gradient(white, white),
+        linear-gradient(90deg, rgb(20, 71, 255) 0%, rgb(51, 51, 255) 35%, rgba(0, 212, 255, 1) 100%);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-top: 20px;
+    margin-bottom: auto;
+    max-width: 25vw;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+label {
+    color: rgb(51, 51, 255);
+    font-family: "Roboto", sans-serif;
+    font-size: 16px;
+    margin-right: 10px;
+    font-weight: 500;
+}
+
+input[type="number"] {
+    background: linear-gradient(135deg, rgba(20, 71, 255, 0.15) 0%, rgba(0, 212, 255, 0.15) 100%);
+    border: 1px solid rgba(51, 51, 255, 0.3);
+    outline: none;
+    border-radius: 5px;
+    color: rgb(20, 71, 255);
+    font-size: 16px;
+    padding: 5px 10px;
+    width: 80px;
+    font-weight: 500;
+}
+
+input[type="number"]:focus {
+    border-color: rgb(51, 51, 255);
+    box-shadow: 0 0 8px rgba(51, 51, 255, 0.3);
+}
+
+/* Hide the arrows */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }

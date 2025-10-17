@@ -9,8 +9,17 @@ let allFoodParticles = [];
 let mouse_x = -1000;
 let mouse_y = -1000;
 
-// Generate a number of fish
+
+// Generate with 15 fish initially
 generateFish(15);
+
+// Update number of fish with user-inputted amount
+const fish_input = document.getElementById('fishCount');
+fish_input.addEventListener('input', function () {
+    allFish = [];
+    const numFish = this.value;
+    generateFish(numFish);
+});
 
 function gameLoop() {
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -25,8 +34,12 @@ function gameLoop() {
     }
 
     for (let i = 0; i < allFoodParticles.length; i++) {
-        moveFood(allFoodParticles[i])
-        drawFood(allFoodParticles[i])
+        let should_remove = moveFood(allFoodParticles[i]);
+        if (should_remove) {
+            allFoodParticles.splice(i, 1);
+        } else {
+            drawFood(allFoodParticles[i]);
+        }
     }
 
     requestAnimationFrame(gameLoop); // loop every frame
@@ -100,10 +113,10 @@ function drawFood(food_particle) {
 
 function moveFood(food_particle) {
     food_particle.y += 0.5  // gravity effect
-    if (food_particle.y < 0) { // delete food that goes off screen
-        let i = allFoodParticles.indexOf(food_particle)
-        allFoodParticles.splice(i, 1)
+    if (food_particle.y > canvas.height) { // delete food that goes off screen
+        return true; // signal that this food should be removed
     }
+    return false;
 }
 
 // Function to draw triangle fish on the canvas
@@ -185,20 +198,6 @@ function calculateRandomMovement(fish) {
 function moveFish(fish) {
     let current_speed = fish.speed;
 
-    // Handle wall collisions (change direction if the fish gets too close to borders)
-    if (fish.x < 100) {
-        fish.x_directon = 1
-    }
-    if (fish.y < 100) {
-        fish.y_direction = 1
-    }
-    if (fish.x > (canvas.width - 100)) {
-        fish.x_directon = -1
-    }
-    if (fish.y > (canvas.height - 100)) {
-        fish.y_direction = -1;
-    }
-
     // Only handle mouse interactions outside wall deadzone (to avoid bugs with fish movement)
     if (fish.x > 150 && fish.x < (canvas.width - 150) && fish.y > 150 && fish.y < canvas.height - 150) {
         let mouse_distance = getDistance(mouse_x, mouse_y, fish.x, fish.y);
@@ -259,10 +258,25 @@ function moveFish(fish) {
     fish.x += fish.x_directon * current_speed // update positions with directions
     fish.y += fish.y_direction * current_speed
 
+    // Handle wall collisions (change direction if the fish gets too close to borders)
+    if (fish.x < 100) {
+        fish.x_directon = 1
+    }
+    if (fish.y < 100) {
+        fish.y_direction = 1
+    }
+    if (fish.x > (canvas.width - 100)) {
+        fish.x_directon = -1
+    }
+    if (fish.y > (canvas.height - 100)) {
+        fish.y_direction = -1;
+    }
+
     // Calc distance since last horizontal flip
     const distanceMovedSinceFlip = fish.x - fish.last_flip_x;
 
     // If moved 20+ pixels to the right, face right
+    // (this is to avoid 'ghosting' issues where the fish get stuck in place swapping directions)
     if (distanceMovedSinceFlip > 20) {
         fish.facing_left = false;
         fish.last_flip_x = fish.x;  // Reset tracking position
@@ -289,7 +303,6 @@ function generateFish(num) {
             primary_color,
             secondary_color,
             eye_color,
-            // call function to randomly select a shape
             0
         )
         allFish.push(fish)   // add fish to array
