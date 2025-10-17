@@ -1,5 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
+
+/* Color gradient variables for reuse */
+:root {
+    --primary-color-gradient: linear-gradient(90deg, rgb(20, 71, 255) 0%, rgb(51, 51, 255) 35%, rgba(0, 212, 255, 1) 100%);
+    --secondary-color-gradient: linear-gradient(135deg, rgba(20, 71, 255, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+}
+
 body {
     margin: 0;
     display: flex;
@@ -10,40 +17,48 @@ body {
 }
 
 #canvas {
-    background-image: url("background_img.jpg");
+    background-image: url("background_img.jpg"); /* Ocean background image from online */
     background-size: cover;
+
     margin-left: auto;
     margin-right: auto;
+    
     max-height: 80vh;
     max-width: 85vw;
+    
     height: auto;
 }
 
+/* Styling for page header */
 h2 {
     margin-left: auto;
     margin-right: auto;
-    background: linear-gradient(90deg, rgb(20, 71, 255) 0%, rgb(51, 51, 255) 35%, rgba(0, 212, 255, 1) 100%);
+
+    background: var(--primary-color-gradient);
     background-clip: text;
     color: transparent;
+
     font-size: 30pt;
     font-weight: 700;
     font-family: "Roboto", sans-serif;
+    
     margin-top: auto;
     margin-bottom: 20px;
 }
 
 .input-box {
-    background: linear-gradient(135deg, rgba(20, 71, 255, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
-    border: 2px solid transparent;
-    background-image:
-        linear-gradient(white, white),
-        linear-gradient(90deg, rgb(20, 71, 255) 0%, rgb(51, 51, 255) 35%, rgba(0, 212, 255, 1) 100%);
+    background: var(--secondary-color-gradient);
+    background-image: linear-gradient(white, white), var(--primary-color-gradient);
     background-origin: border-box;
     background-clip: padding-box, border-box;
+    
+    border: 2px solid transparent;
     border-radius: 8px;
     padding: 10px 15px;
+    
     margin-top: 20px;
     margin-bottom: auto;
+    
     max-width: 25vw;
     margin-left: auto;
     margin-right: auto;
@@ -58,7 +73,7 @@ label {
 }
 
 input[type="number"] {
-    background: linear-gradient(135deg, rgba(20, 71, 255, 0.15) 0%, rgba(0, 212, 255, 0.15) 100%);
+    background: var(--secondary-color-gradient);
     border: 1px solid rgba(51, 51, 255, 0.3);
     outline: none;
     border-radius: 5px;
@@ -69,12 +84,13 @@ input[type="number"] {
     font-weight: 500;
 }
 
+/* On selection of the number input */
 input[type="number"]:focus {
     border-color: rgb(51, 51, 255);
     box-shadow: 0 0 8px rgba(51, 51, 255, 0.3);
 }
 
-/* Hide the arrows */
+/* To hide number input arrows */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
