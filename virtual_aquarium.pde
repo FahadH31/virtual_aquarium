@@ -2,11 +2,10 @@
 ArrayList<Fish> allFish = new ArrayList<Fish>();
 ArrayList<Food> allFoodParticles = new ArrayList<Food>();
 
-// Mouse location variables
+// Mouse location variables (initially off screen)
 float mouseXPos = -1000;
 float mouseYPos = -1000;
 
-// Background image
 PImage bgImage;
 
 // UI elements
@@ -19,15 +18,8 @@ int[] fishColorIndices = new int[50]; // Max 50 fish
 void setup() {
   size(1500, 1000, P2D); // Use P2D renderer for hardware acceleration
   
-  // Try to load background image
-  try {
-    bgImage = loadImage("background_img.jpg");
-    if (bgImage != null) {
-      bgImage.resize(width, height);
-    }
-  } catch (Exception e) {
-    bgImage = null;
-  }
+bgImage = loadImage("background_img.jpg"); // background image
+bgImage.resize(width, height); // resize for window
   
   // Pre-render fish sprites for each color scheme
   createFishSprites();
@@ -40,13 +32,10 @@ void setup() {
 
 void draw() {
   // Draw background
-  if (bgImage != null) {
-    image(bgImage, 0, 0);
-  } else {
-    background(50, 100, 150);
-  }
+  image(bgImage, 0, 0);
+
   
-  // Update and draw all fish (optimized)
+  // Update and draw all fish
   for (int i = 0; i < allFish.size(); i++) {
     Fish fish = allFish.get(i);
     updateFish(fish);
@@ -66,13 +55,10 @@ void draw() {
     } //<>//
   }
   
-  fill(255, 255, 255, 200);
-  noStroke();
-  rect(10, height - 40, 280, 30);
-  fill(51, 51, 255);
+  // Display fish count
   textSize(12);
   textAlign(LEFT);
-  text("Fish: " + fishCount + " | Click to feed | FPS: " + (int)frameRate, 15, height - 20);
+  text("Fish: " + fishCount, 15, height - 20);
 }
 
 void mousePressed() {
@@ -84,13 +70,10 @@ void mouseMoved() {
   mouseYPos = mouseY;
 }
 
+
+// To increase/decrease number of fish
 void keyPressed() {
-  if (key >= '1' && key <= '9') {
-    fishCount = key - '0';
-    if (keyPressed && key == '0') fishCount = 10;
-    allFish.clear();
-    generateFish(fishCount);
-  } else if (key == '+' || key == '=') {
+  if (key == '+' || key == '=') {
     if (fishCount < 50) {
       fishCount++;
       generateFish(1);
@@ -103,7 +86,7 @@ void keyPressed() {
   }
 }
 
-// Create pre-rendered fish sprites
+// Create fish sprites
 void createFishSprites() {
   fishSprites = new PGraphics[6];
   
@@ -124,25 +107,25 @@ void createFishSprites() {
     color pColor = colorSchemes[i][0];
     color sColor = colorSchemes[i][1];
     
-    // Offset all drawing by 20 pixels to account for tail
+    // Offset all drawing by 20 pixels to account for fish tails
     int offsetX = 20;
     
-    // Draw tail
+    // Tail
     fishSprites[i].noStroke();
     fishSprites[i].fill(sColor);
     fishSprites[i].triangle(offsetX + 30, 40, offsetX - 20, 40, offsetX - 20, 70);
     
-    // Draw body
+    // Body
     fishSprites[i].fill(pColor);
     fishSprites[i].triangle(offsetX, 0, offsetX + 75, 50, offsetX, 100);
     
-    // Draw stripe
+    // Stripe
     fishSprites[i].stroke(sColor);
     fishSprites[i].strokeWeight(4);
     fishSprites[i].noFill();
     fishSprites[i].bezier(offsetX + 35, 25, offsetX + 20, 37.5, offsetX + 20, 62.5, offsetX + 35, 75);
     
-    // Draw eye
+    // Eye
     fishSprites[i].noStroke();
     fishSprites[i].fill(255, 255, 0);
     fishSprites[i].ellipse(offsetX + 50, 50, 10, 10);
@@ -153,7 +136,7 @@ void createFishSprites() {
   }
 }
 
-// Draw fish using pre-rendered sprite
+// Draw fish using the pre-rendered sprites
 void drawFishSprite(Fish fish, int index) {
   pushMatrix();
   translate(fish.x, fish.y);
@@ -177,7 +160,7 @@ void updateFish(Fish fish) {
   
   float currentSpeed = fish.speed;
   
-  // Mouse interaction (simplified bounds check)
+  // Mouse interaction
   float dx = mouseXPos - fish.x;
   float dy = mouseYPos - fish.y;
   float distSq = dx * dx + dy * dy;
@@ -198,7 +181,7 @@ void updateFish(Fish fish) {
     fish.xDirection = fish.fleeDirectionX;
     fish.yDirection = fish.fleeDirectionY;
   } else if (allFoodParticles.size() > 0) {
-    // Food seeking (simplified)
+    // Food seeking
     Food nearest = allFoodParticles.get(0);
     float nearestDistSq = Float.MAX_VALUE;
     
@@ -220,9 +203,13 @@ void updateFish(Fish fish) {
     }
   }
   
-  // Update position
+  // Update movement direction
   fish.x += fish.xDirection * currentSpeed;
   fish.y += fish.yDirection * currentSpeed;
+  
+  // After updating position clamp to bounds (avoiding phasing past walls)
+  fish.x = constrain(fish.x, 15, width - 15);
+  fish.y = constrain(fish.y, 30, height - 30);
   
   // Wall collisions
   if (fish.x < 100) fish.xDirection = 1;
@@ -232,10 +219,10 @@ void updateFish(Fish fish) {
   
   // Update facing
   float moved = fish.x - fish.lastFlipX;
-  if (moved > 20) {
+  if (moved > 10) {
     fish.facingLeft = false;
     fish.lastFlipX = fish.x;
-  } else if (moved < -20) {
+  } else if (moved < -10) {
     fish.facingLeft = true;
     fish.lastFlipX = fish.x;
   }
@@ -264,7 +251,7 @@ void generateFish(int num) {
   }
 }
 
-// Minimal Fish class
+// Fish class
 class Fish {
   float x, y, lastFlipX, speed;
   int xDirection, yDirection;
